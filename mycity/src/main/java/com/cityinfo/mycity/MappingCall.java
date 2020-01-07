@@ -8,19 +8,31 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 
 public class MappingCall {
 
-	public String index2(Request r) {
 		
-		System.out.println(r.getCity());
-			
+public CityInfoResponse getCityInfo(Request r) {
+		
+		CityInfoResponse cir = new CityInfoResponse();
+	
+		cir.setTemperature(getWeather(r.getCity()));
+		cir.setAirport("Sri Guru.....");
+		cir.setPollutionLevel(1.55);
+		
+		
+		return cir;
+	}
+	
+	
+	
+	public Double getWeather(String cityName) {
 		String finalUrl = "";
 		String baseurl = "https://api.openweathermap.org/data/2.5/weather?";
-		String city = "q=" + r.getCity();	
+		String city = "q=" + cityName;	
 		String apiKey = "appid=44e2250efae90837e072f5ace23ac51e"; 
 		String units = "units=metric";
 		
@@ -30,7 +42,10 @@ public class MappingCall {
 		HttpGet request = new HttpGet(finalUrl);
 		HttpResponse response;
 		BufferedReader rd;
-		Double str_data1 = null;
+		int temp_int = 0;
+		double temp_double = 0.00;
+		String temp = "";
+		
 		StringBuffer result = new StringBuffer();
 		try {
 			 response = client.execute(request);
@@ -40,23 +55,23 @@ public class MappingCall {
 				while ((line = rd.readLine()) != null) {
 					result.append(line);
 				}
-				String inLine = result.toString();
-				JSONParser parse = new JSONParser();
-				try {
-					JSONObject jobj = (JSONObject)parse.parse(inLine);
-					JSONObject obj1 = (JSONObject)jobj.get("main");
-					str_data1 = (Double) obj1.get("temp");
-				} catch (ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-							
+				String cityInfoResult = result.toString();
+				JSONObject cityInfoResponse = new JSONObject(cityInfoResult);
+			
+				
+				temp_double = cityInfoResponse.getJSONObject("main").getDouble("temp");
+		
 			 
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 			
-		return str_data1.toString();
-		}
+		return temp_double;
 }
+	}
+	
+	
+	
+	
+	
